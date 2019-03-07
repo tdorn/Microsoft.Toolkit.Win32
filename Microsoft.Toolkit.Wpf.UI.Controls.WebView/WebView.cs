@@ -784,70 +784,53 @@ namespace Microsoft.Toolkit.Wpf.UI.Controls
                         var handle = ChildWindow.Handle;
                         var bounds = new Windows.Foundation.Rect(0, 0, RenderSize.Width * DpiScale.DpiScaleX, RenderSize.Height * DpiScale.DpiScaleY);
 
-                        // Observe fault via continuation to avoid UnobservedTaskException
-                        _webViewControl = await _process.CreateWebViewControlHostAsync(handle, bounds)
-                            .ContinueWith(
-                            (t) =>
-                            {
-                                if (t.Exception != null)
-                                {
-                                    Debug.WriteLine(t.Exception);
-                                }
-                                return default(WebViewControlHost);
-                            }, TaskContinuationOptions.OnlyOnFaulted)
-                            .ConfigureAwait(false);
+                        _webViewControl = await _process.CreateWebViewControlHostAsync(handle, bounds).ConfigureAwait(false);
                     }
 
-                    if (_webViewControl == null)
+                    Verify.IsNotNull(_webViewControl);
+
+                    if (!Dispatcher.CheckAccess())
                     {
-                        _initializationState = InitializationState.IsErrored;
-                        _initializationComplete.Set();
+                        Dispatcher.Invoke(() => UpdateSize(RenderSize));
                     }
                     else
                     {
-                        if (!Dispatcher.CheckAccess())
-                        {
-                            Dispatcher.Invoke(() => UpdateSize(RenderSize));
-                        }
-                        else
-                        {
-                            UpdateSize(RenderSize);
-                        }
-
-                        DestroyWindowCore(ChildWindow);
-
-                        SubscribeEvents();
-                        _webViewControl.IsVisible = true;
-
-                        Uri source;
-                        bool javaScriptEnabled;
-                        bool indexDBEnabled;
-                        bool scriptNotifyAllowed;
-                        if (!Dispatcher.CheckAccess())
-                        {
-                            source = Dispatcher.Invoke(() => Source);
-                            javaScriptEnabled = Dispatcher.Invoke(() => IsJavaScriptEnabled);
-                            indexDBEnabled = Dispatcher.Invoke(() => IsIndexedDBEnabled);
-                            scriptNotifyAllowed = Dispatcher.Invoke(() => IsScriptNotifyAllowed);
-                        }
-                        else
-                        {
-                            source = Source;
-                            javaScriptEnabled = IsJavaScriptEnabled;
-                            indexDBEnabled = IsIndexedDBEnabled;
-                            scriptNotifyAllowed = IsScriptNotifyAllowed;
-                        }
-
-                        _webViewControl.Settings.IsJavaScriptEnabled = javaScriptEnabled;
-                        _webViewControl.Settings.IsIndexedDBEnabled = indexDBEnabled;
-                        _webViewControl.Settings.IsScriptNotifyAllowed = scriptNotifyAllowed;
-
-                        // This will cause a navigate, make last property set
-                        _webViewControl.Source = source;
-
-                        _initializationState = InitializationState.IsInitialized;
-                        _initializationComplete.Set();
+                        UpdateSize(RenderSize);
                     }
+
+                    DestroyWindowCore(ChildWindow);
+
+                    SubscribeEvents();
+                    _webViewControl.IsVisible = true;
+
+                    Uri source;
+                    bool javaScriptEnabled;
+                    bool indexDBEnabled;
+                    bool scriptNotifyAllowed;
+                    if (!Dispatcher.CheckAccess())
+                    {
+                        source = Dispatcher.Invoke(() => Source);
+                        javaScriptEnabled = Dispatcher.Invoke(() => IsJavaScriptEnabled);
+                        indexDBEnabled = Dispatcher.Invoke(() => IsIndexedDBEnabled);
+                        scriptNotifyAllowed = Dispatcher.Invoke(() => IsScriptNotifyAllowed);
+                    }
+                    else
+                    {
+                        source = Source;
+                        javaScriptEnabled = IsJavaScriptEnabled;
+                        indexDBEnabled = IsIndexedDBEnabled;
+                        scriptNotifyAllowed = IsScriptNotifyAllowed;
+                    }
+
+                    _webViewControl.Settings.IsJavaScriptEnabled = javaScriptEnabled;
+                    _webViewControl.Settings.IsIndexedDBEnabled = indexDBEnabled;
+                    _webViewControl.Settings.IsScriptNotifyAllowed = scriptNotifyAllowed;
+
+                    // This will cause a navigate, make last property set
+                    _webViewControl.Source = source;
+
+                    _initializationState = InitializationState.IsInitialized;
+                    _initializationComplete.Set();
                 },
                 DispatcherPriority.Send);
         }
