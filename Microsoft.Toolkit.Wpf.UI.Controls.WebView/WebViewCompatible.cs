@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using Microsoft.Toolkit.UI.Controls;
+using Microsoft.Toolkit.Win32.UI.Controls;
 using Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT;
 
 namespace Microsoft.Toolkit.Wpf.UI.Controls
@@ -15,23 +16,38 @@ namespace Microsoft.Toolkit.Wpf.UI.Controls
     {
         public static DependencyProperty SourceProperty { get; } = DependencyProperty.Register(nameof(Source), typeof(Uri), typeof(WebViewCompatible));
 
+        private IWebViewCompatibleAdapter _implementation;
+
         public WebViewCompatible()
             : base()
         {
             if (WebViewControlHost.IsSupported)
             {
-                _implementation = new WebViewCompatibilityAdapter();
+                // Force initialization of the web view control,
+                // if initialization fails then we want to force
+                // fallback to the legacy IE browser.
+                var webViewAdapter = new WebViewCompatibilityAdapter();
+                webViewAdapter.Initialize();
+                webViewAdapter.View.BeginInit();
+                webViewAdapter.View.EndInit();
+
+                // GetInitializationState will block until the control
+                // finishes its initialization run.
+                if (webViewAdapter.GetInitializationState() == InitializationState.IsInitialized)
+                {
+                    _implementation = webViewAdapter;
+                }
             }
-            else
+
+            if (_implementation == null)
             {
                 _implementation = new WebBrowserCompatibilityAdapter();
+                _implementation.Initialize();
+                _implementation.View.BeginInit();
+                _implementation.View.EndInit();
             }
 
-            _implementation.Initialize();
-
             AddChild(_implementation.View);
-            _implementation.View.BeginInit();
-            _implementation.View.EndInit();
             var binder = new Binding()
             {
                 Source = _implementation,
@@ -47,8 +63,6 @@ namespace Microsoft.Toolkit.Wpf.UI.Controls
         }
 
         public static bool IsLegacy { get; } = !WebViewControlHost.IsSupported;
-
-        private IWebViewCompatibleAdapter _implementation;
 
         public Uri Source { get => (Uri)GetValue(SourceProperty); set => SetValue(SourceProperty, value); }
 

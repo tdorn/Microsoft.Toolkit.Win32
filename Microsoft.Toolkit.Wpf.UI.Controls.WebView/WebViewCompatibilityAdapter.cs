@@ -4,6 +4,7 @@
 
 using System;
 using System.Windows;
+using Microsoft.Toolkit.Win32.UI.Controls;
 using Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT;
 
 namespace Microsoft.Toolkit.Wpf.UI.Controls
@@ -34,6 +35,8 @@ namespace Microsoft.Toolkit.Wpf.UI.Controls
         public override bool CanGoBack => _webView.CanGoBack;
 
         public override bool CanGoForward => _webView.CanGoForward;
+
+        public InitializationState GetInitializationState() => _webView.InvokeInitializationState();
 
         public void Dispose()
         {

@@ -10,7 +10,7 @@ namespace Microsoft.Toolkit.Win32.UI.Controls
     /// Initialization states of WebView object.
     /// </summary>
     /// <seealso cref="ISupportInitialize"/>
-    internal enum InitializationState
+    public enum InitializationState
     {
         /// <summary>
         /// The state in which the WebView has not been initialized.
@@ -30,6 +30,13 @@ namespace Microsoft.Toolkit.Win32.UI.Controls
         /// The state in which the WebView object is fully initialized. At this state the object
         /// is fully functional. There is no valid transition out of the state.
         /// </summary>
-        IsInitialized
+        IsInitialized,
+
+        /// <summary>
+        /// The initialization state in which the WebView obejct failed to initialize. This this state
+        /// the WebView object should not be used. Fallback mechanisms should be in place to handle events
+        /// where initialization fails.
+        /// </summary>
+        IsErrored
     }
 }

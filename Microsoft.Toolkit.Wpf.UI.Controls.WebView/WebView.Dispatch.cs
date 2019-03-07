@@ -20,6 +20,22 @@ namespace Microsoft.Toolkit.Wpf.UI.Controls
         /// <summary>
         /// Dispatches a blank frame to allow dispatcher queue to flush. If WebViewControl is not initialized, waits for control
         /// to be loaded by subscribing to Loaded event. Once loaded finishes blocking until control is initialized, then
+        /// returns the current initialization state of the control.
+        /// </summary>
+        /// <returns>The initialization state of the control.</returns>
+        public InitializationState InvokeInitializationState()
+        {
+            if (!WebViewControlInitialized)
+            {
+                InvokeAfterInitializing();
+            }
+
+            return _initializationState;
+        }
+
+        /// <summary>
+        /// Dispatches a blank frame to allow dispatcher queue to flush. If WebViewControl is not initialized, waits for control
+        /// to be loaded by subscribing to Loaded event. Once loaded finishes blocking until control is initialized, then
         /// dispatches a message to perform the <paramref name="callback"/>
         /// </summary>
         /// <param name="callback">The callback to perform after loaded</param>
@@ -77,7 +93,7 @@ namespace Microsoft.Toolkit.Wpf.UI.Controls
         /// <typeparam name="T">The type of the return value.</typeparam>
         /// <returns>The result of <paramref name="callback"/></returns>
         /// <exception cref="InvalidOperationException">Occurs when the callback cannot be completed because the control is not yet loaded.</exception>
-        private T InvokeAfterInitializing<T>(Func<T> callback)
+        public T InvokeAfterInitializing<T>(Func<T> callback)
         {
             if (callback == null)
             {
