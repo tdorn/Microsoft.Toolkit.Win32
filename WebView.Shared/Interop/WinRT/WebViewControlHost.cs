@@ -48,6 +48,8 @@ namespace Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT
         private const string LocalContentIdentifier = "LocalContent";
         private const string WinRtType = "Windows.Web.UI.Interop.WebViewControl";
 
+        private static bool? _canCreate;
+
         [SecurityCritical]
         private WebViewControl _webViewControl;
 
@@ -120,6 +122,55 @@ namespace Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT
         internal static bool IsSupported => OSVersionHelper.IsWindows10April2018OrGreater
                                             && OSVersionHelper.IsWorkstation
                                             && OSVersionHelper.EdgeExists;
+
+        public static async Task<bool> CanCreateWebViewControlHost()
+        {
+            if (_canCreate.HasValue)
+            {
+                return _canCreate.Value;
+            }
+
+            _canCreate = true;
+
+            var process = default(WebViewControlProcess);
+            var windowHandle = default(IntPtr);
+            var host = default(WebViewControlHost);
+
+            void SafeExec(Action action)
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            try
+            {
+                 process = new WebViewControlProcess();
+                 windowHandle = NativeMethods.CreateWindow("Static", 0, 0, 0, 0, 0, IntPtr.Zero);
+                 host = await process.CreateWebViewControlHostAsync(windowHandle, new Rect(0, 0, 10, 10)).ConfigureAwait(false);
+            }
+            catch
+            {
+                _canCreate = false;
+            }
+            finally
+            {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                Task.Run(() =>
+                {
+                    SafeExec(() => NativeMethods.DestroyWindow(windowHandle));
+                    SafeExec(() => host?.Close());
+                    SafeExec(() => host?.Dispose());
+                });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            }
+
+            return _canCreate.Value;
+        }
 
         internal bool CanGoBack
         {

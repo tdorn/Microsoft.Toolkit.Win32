@@ -3,9 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
 using Microsoft.Toolkit.UI.Controls;
 using Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT;
 
@@ -18,7 +20,7 @@ namespace Microsoft.Toolkit.Wpf.UI.Controls
         public WebViewCompatible()
             : base()
         {
-            if (WebViewControlHost.IsSupported)
+            if (WebViewControlHost.IsSupported && WebViewControlHost.CanCreateWebViewControlHost().Result)
             {
                 _implementation = new WebViewCompatibilityAdapter();
             }
