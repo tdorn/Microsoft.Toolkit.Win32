@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
@@ -73,6 +73,8 @@ namespace Microsoft.Toolkit.Wpf.UI.Controls
         public void Navigate(Uri url) => _implementation.Navigate(url);
 
         public void Navigate(string url) => _implementation.Navigate(url);
+
+        public void Navigate(string url, string headers) => _implementation.Navigate(url, headers);
 
         public void NavigateToString(string text) => _implementation.NavigateToString(text);
 

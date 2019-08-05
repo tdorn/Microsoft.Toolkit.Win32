@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
@@ -101,6 +101,11 @@ namespace Microsoft.Toolkit.Wpf.UI.Controls
         public override void Navigate(string url)
         {
             _browser?.Navigate(url);
+        }
+
+        public override void Navigate(string url, string headers)
+        {
+            _browser?.Navigate(url, string.Empty, null, headers);
         }
 
         public override void NavigateToString(string text)
