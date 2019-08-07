@@ -1,10 +1,8 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Windows;
 using Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT;
 
@@ -102,24 +100,6 @@ namespace Microsoft.Toolkit.Wpf.UI.Controls
         public override void Navigate(Uri url) => _webView?.Navigate(url);
 
         public override void Navigate(string url) => _webView?.Navigate(url);
-
-        public override void Navigate(string url, string headers) => _webView?.Navigate(new Uri(url), HttpMethod.Get, headers: SeparateHeaders(headers));
-
-        private IEnumerable<KeyValuePair<string, string>> SeparateHeaders(string headers)
-        {
-            var headerCollection = new List<KeyValuePair<string, string>>();
-
-            foreach (var pairing in headers.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                var kvpPair = pairing.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                if (kvpPair.Length == 2)
-                {
-                    headerCollection.Add(new KeyValuePair<string, string>(kvpPair[0].Trim(), kvpPair[1].Trim()));
-                }
-            }
-
-            return headerCollection;
-        }
 
         public override void NavigateToString(string text) => _webView.NavigateToString(text);
 
