@@ -656,28 +656,6 @@ namespace Microsoft.Toolkit.Wpf.UI.Controls
         }
 
         /// <inheritdoc />
-        public void Navigate(string source, string headers)
-        {
-            Navigate(UriHelper.StringToUri(source), HttpMethod.Get, headers: SeparateHeaders(headers));
-        }
-
-        private IEnumerable<KeyValuePair<string, string>> SeparateHeaders(string headers)
-        {
-            var headerCollection = new List<KeyValuePair<string, string>>();
-
-            foreach (var pairing in headers.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                var kvpPair = pairing.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                if (kvpPair.Length == 2)
-                {
-                    headerCollection.Add(new KeyValuePair<string, string>(kvpPair[0].Trim(), kvpPair[1].Trim()));
-                }
-            }
-
-            return headerCollection;
-        }
-
-        /// <inheritdoc />
         public void Navigate(Uri source)
         {
             VerifyAccess();
